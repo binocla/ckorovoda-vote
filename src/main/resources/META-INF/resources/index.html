@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ru">
+<meta charset="UTF-8">
+<head>
+    <title>Voting Page</title>
+    <style>
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr); /* Five equal-width columns */
+            grid-gap: 20px; /* Add a gap between the columns */
+        }
+
+        .card {
+            border: 1px solid #ccc;
+            padding: 20px;
+            background: linear-gradient(to bottom, #f5f5f5, #e8e8e8);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease-in-out;
+        }
+
+        .card h2 {
+            margin: 0;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .card p {
+            margin: 10px 0;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .card button {
+            display: inline-block;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #fff;
+            background-color: #333;
+            cursor: pointer;
+        }
+
+        .card button:hover {
+            background-color: #444;
+        }
+    </style>
+</head>
+<body>
+<h1>Ckorovoda Contest</h1>
+<form id="card-form" method="post" action="/vote">
+    <label for="title">Название/Nickname:</label><br>
+    <input type="text" id="title" name="title"><br>
+    <label for="description">Описание:</label><br>
+    <textarea id="description" name="description"></textarea><br>
+    <label for="score">Баллы:</label><br>
+    <input placeholder="0" type="number" id="score" name="score"><br>
+    <label for="days">Дни участия:</label><br>
+    <input placeholder="0" type="number" id="days" name="days"><br>
+    <button type="submit">Создать участника</button>
+</form>
+<div id="card-container"></div>
+<script>
+    function createCard(participant) {
+        const card = document.createElement('div');
+        card.classList.add('card');
+        card.innerHTML = `
+    <h2>${participant.title}</h2>
+    <p>${participant.description}</p>
+    <div>Баллы: <span class="points">${participant.score}</span></div>
+    <div>Дни: <span class="days">${participant.days}</span></div>
+  `;
+
+
+        const daysContainer = document.createElement('div');
+        const daysLabel = document.createElement('label');
+        daysLabel.innerHTML = 'Дни:';
+        const daysInput = document.createElement('input');
+        daysInput.type = 'number';
+        daysInput.value = participant.days;
+        daysInput.addEventListener('input', () => {
+            const data = {days: parseInt(daysInput.value)};
+            fetch(`/vote/${participant.id}`, {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data),
+            })
+                .then((response) => response.json())
+                .then((updatedParticipant) => {
+                    daysInput.value = updatedParticipant.days;
+                });
+        });
+        const daysIncreaseButton = document.createElement('button');
+        daysIncreaseButton.innerHTML = '+1';
+        daysIncreaseButton.addEventListener('click', () => {
+            const data = {days: participant.days + 1};
+            fetch(`/vote/${participant.id}`, {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data),
+            })
+                .then((response) => response.json())
+                .then((updatedParticipant) => {
+                    daysInput.value = updatedParticipant.days;
+                });
+        });
+        const daysDecreaseButton = document.createElement('button');
+        daysDecreaseButton.innerHTML = '-1';
+        daysDecreaseButton.addEventListener('click', () => {
+            const data = {days: participant.days - 1};
+            fetch(`/vote/${participant.id}`, {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data),
+            })
+                .then((response) => response.json())
+                .then((updatedParticipant) => {
+                    daysInput.value = updatedParticipant.days;
+                });
+        });
+        daysContainer.appendChild(daysLabel);
+        daysContainer.appendChild(daysInput);
+        daysContainer.appendChild(daysIncreaseButton);
+        daysContainer.appendChild(daysDecreaseButton);
+        card.appendChild(daysContainer);
+
+        const scoreContainer = document.createElement('div');
+        const scoreLabel = document.createElement('label');
+        scoreLabel.innerHTML = 'Баллы:';
+        const scoreInput = document.createElement('input');
+        scoreInput.type = 'number';
+        scoreInput.value = participant.score;
+        scoreInput.addEventListener('input', () => {
+            const data = {score: parseInt(scoreInput.value)};
+            fetch(`/vote/${participant.id}`, {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data),
+            })
+                .then((response) => response.json())
+                .then((updatedParticipant) => {
+                    scoreInput.value = updatedParticipant.score;
+                });
+        });
+        const scoreIncreaseButton = document.createElement('button');
+        scoreIncreaseButton.innerHTML = '+1';
+        scoreIncreaseButton.addEventListener('click', () => {
+            const data = {days: participant.score + 1};
+            fetch(`/vote/${participant.id}`, {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data),
+            })
+                .then((response) => response.json())
+                .then((updatedParticipant) => {
+                    scoreInput.value = updatedParticipant.score;
+                });
+        });
+        const scoreDecreaseButton = document.createElement('button');
+        scoreDecreaseButton.innerHTML = '-1';
+        scoreDecreaseButton.addEventListener('click', () => {
+            const data = {days: participant.score - 1};
+            fetch(`/vote/${participant.id}`, {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data),
+            })
+                .then((response) => response.json())
+                .then((updatedParticipant) => {
+                    scoreInput.value = updatedParticipant.score;
+                });
+        });
+        scoreContainer.appendChild(scoreLabel);
+        scoreContainer.appendChild(scoreInput);
+        scoreContainer.appendChild(scoreIncreaseButton);
+        scoreContainer.appendChild(scoreDecreaseButton);
+        card.appendChild(scoreContainer);
+
+
+        const deleteButton = document.createElement('button');
+        deleteButton.innerHTML = 'Удалить';
+        deleteButton.addEventListener('click', () => {
+            // Make a DELETE request to the /vote/{id} endpoint to delete the participant
+            fetch(`/vote/${participant.id}`, {
+                method: 'DELETE',
+            })
+                .then((response) => {
+                    if (response.status === 204) {
+                        // Remove the card from the page if the DELETE request was successful
+                        card.remove();
+                    }
+                });
+        });
+        card.appendChild(deleteButton);
+
+
+        document.getElementById('card-container').appendChild(card);
+    }
+
+    function getParticipants() {
+        fetch('/vote')
+            .then((response) => response.json())
+            .then((participants) => {
+                // Clear the card container
+                document.getElementById('card-container').innerHTML = '';
+                // Add each participant to the page
+                participants.forEach((participant) => {
+                    createCard(participant);
+                });
+            });
+    }
+
+
+    const form = document.getElementById('card-form');
+    form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const title = document.getElementById('title').value;
+        const description = document.getElementById('description').value;
+        const score = document.getElementById('score').value;
+        const data = {title, description, score};
+        fetch('/vote', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data),
+        })
+            .then((response) => response.json())
+            .then((participant) => {
+                createCard(participant)
+                getParticipants()
+            });
+    });
+    getParticipants();
+
+    // Set an interval to retrieve the participants every 10 seconds
+    setInterval(getParticipants, 5000);
+
+</script>
+</body>
+</html>
